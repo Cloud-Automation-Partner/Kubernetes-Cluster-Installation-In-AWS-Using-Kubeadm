@@ -479,12 +479,15 @@ For environment variables, create Kubernetes ConfigMap and Secret objects.
 Ensure you encode all sensitive data in Secrets using base64 encoding.  
 
 - Apply the Manifests:
+  For each manifest file use the below command
 ```bash
-kubectl apply -f <filename>.yaml for each manifest file.
+kubectl apply -f <filename>.yaml 
 ```
 - Verify Deployment:
+To check the status of deploymennt run below
 ```bash
-kubectl get pods,services to check the status
+kubectl get pods --all-nammespaces
+kubectl get services --all-nammespaces
 ```
 
 ## Conclusion
