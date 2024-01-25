@@ -221,34 +221,274 @@ kubectl create token admin-user -n kubernetes-dashboard
 ```
 Put the token generated above into the field in browser Enter token and click the Sign In button and you will be redirected to the Dashboard.  
 
-## 3. Deploying Applications
+## 3. Deploying Applications  
+
+Nnow we will dedploy a full stack application on our cluster
 
 ### 3.1. Front-End and Back-End Deployment
 
-1. Create Docker images for front-end and back-end.
-2. Push them to a registry (e.g., Docker Hub).
-3. Create deployment YAML files for front-end and back-end.
-4. Deploy using `kubectl apply -f <deployment_yaml>`.
-
+- Web Deployment and Service
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: zahidmahmood1995/timebot-be:web
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: web-config
+        - secretRef:
+            name: web-secret
+      depends_on:
+        - db
+        - redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+```
+- Frontend Deployment and Service
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: zahidmahmood1995/timebot-be:frontend
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+      depends_on:
+        - web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+```
 ### 3.2. Redis Deployment
 
-1. Deploy Redis using `kubectl apply -f <redis_deployment_yaml>`.
-2. Ensure proper networking and storage configurations.
+- Redis Deployment and Service
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2.6
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+```
+- Redis Persistent Volume Claim
+```bash
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
 
 ### 3.3. Sidekiq Deployment
 
-1. Deploy Sidekiq as a background job processor.
-2. Configure it to work with the back-end.
-
+- Sidekiq Deployment
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidekiq-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidekiq
+  template:
+    metadata:
+      labels:
+        app: sidekiq
+    spec:
+      containers:
+      - name: sidekiq
+        image: zahidmahmood1995/timebot-be:sidekiq
+        command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+        envFrom:
+        - configMapRef:
+            name: sidekiq-config
+        - secretRef:
+            name: sidekiq-secret
+      depends_on:
+        - db
+        - redis
+```
 ### 3.4. PostgreSQL Deployment
+- Deployment and Service for the 'db' Service
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13.4
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: db-data
+      volumes:
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: db-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+spec:
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
 
-1. Deploy PostgreSQL using `kubectl apply -f <postgres_deployment_yaml>`.
-2. Set up persistent storage and configure the database.
+```
+- 2. ConfigMap and Secret
+```bash
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  username: [Base64 encoded DB_USERNAME]
+  password: [Base64 encoded DB_PASSWORD]
+```
+- Persistent Volume Claim
+```bash
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+### Steps to Apply  
+
+- Create Kubernetes ConfigMaps and Secrets:
+
+For environment variables, create Kubernetes ConfigMap and Secret objects.
+Ensure you encode all sensitive data in Secrets using base64 encoding.  
+
+- Apply the Manifests:
+```bash
+kubectl apply -f <filename>.yaml for each manifest file.
+```
+- Verify Deployment:
+```bash
+kubectl get pods,services to check the status
+```
 
 ## Conclusion
 
 This guide provides a basic setup for running a Kubernetes cluster on AWS EC2 with Calico networking, including a typical web application stack. For detailed configurations and advanced setups, refer to the official Kubernetes and AWS documentation.
 
 ---
-
-**Note:** Replace placeholders like `<calico_manifest_url>`, `<deployment_yaml>`, `<redis_deployment_yaml>`, and `<postgres_deployment_yaml>` with actual URLs or file paths.
