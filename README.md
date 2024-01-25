@@ -181,13 +181,45 @@ kubeadm join 172.31.1.17:6443 — token exmkm6.v18t1dkyyu0nte89 — discovery-to
 ```bash
 kubectl get nodes -o wide
 ```
-***That means our K8's cluster is ready***  
+***That means our K8's cluster is ready***    
+
 ![image](https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/7ea4bde4-77ea-4c3f-aa42-2b7e1fa209e4)
 
 ## 2. Installing the Kubernetes Dashboard
 
-1. Run `kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml`.
-2. Access the dashboard using `kubectl proxy`.
+- Run below command to add Kubernetes dashboard to the cluster
+```bash
+Kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+```
+- Access Kubernetes Dashboard
+```bash
+kubectl -n kubernetes-dashboard edit svc kubernetes-dashboard
+```
+Find the service type and change from ClusterIP to NodePort, save and exit from the file.
+
+Make sure the service type is changed to NodePort.
+
+You can access your dashboard from any browser using the NodePort and the Public IP address you have got.
+
+```bash
+kubectl -n kubernetes-dashboard get svc
+```
+***Your Example URL will  be like: https://Your-Public-IP:NodePort/#/login***
+
+- Get Login Credentials to access Kubernetes Dashboard using a Token
+
+```bash
+kubectl create serviceaccount admin-user -n kubernetes-dashboard
+```
+Above command creates a service account in the kubernetes-dashboard namespace  
+```bash
+kubectl create clusterrolebinding admin-user -n kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:admin-user
+```
+- Generate token
+```bash
+kubectl create token admin-user -n kubernetes-dashboard
+```
+Put the token generated above into the field in browser Enter token and click the Sign In button and you will be redirected to the Dashboard.  
 
 ## 3. Deploying Applications
 
