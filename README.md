@@ -128,7 +128,8 @@ sudo systemctl restart containerd
 sudo systemctl enable containerd
 systemctl status containerd
 ```
-***Note:*** From this point you can create an AMI of the iinstance so that you can spin the worker nodeds from it.
+***Note:*** From this point you can create an AMI of the iinstance so that you can spin the worker nodeds from it.  
+
 ### 1.4. Initialize the Master Node  
 
 - Enable kubelet service
@@ -143,11 +144,45 @@ sudo kubeadm config images pull --cri-socket unix:///run/containerd/containerd.s
 ```bash
 kubeadm init --apiserver-advertise-address=YOUR_INSTANCE_PRIVATE_IP --pod-network-cidr=192.168.0.0/16 --ignore-preflight-errors=all
 ```
-Now the Kubernetes Cluster has been innitialised successfully and soon it will print the 
-### 1.3. Setting Up Calico Networking
+Now the Kubernetes Cluster has been initialised successfully and soon it will print the   
 
-1. Apply Calico manifest: `kubectl apply -f <calico_manifest_url>`.
-2. Verify the Calico installation.
+- To start using your cluster run below commandd  as root user
+```bash
+export KUBECONFIG=/etc/kubernetes/admin.conf
+```
+- Check Nodde status
+```bash
+kubectl get nodes -o wide
+```
+
+### 1.5. Setting Up Calico Networking
+- Deploy the Calico network
+```bash
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+kubectl get pods --all-namespaces
+kubectl get nodes -o wide
+```
+The cluster will be in the Ready state now once network plugins  are installed and we are good to add the worker nodes to it.
+### 1.6. Add worker nodes  
+
+Once the control plane is complete, you can add worker nodes to the cluster to run scheduled workloads.
+
+Use the output from kubeadm token create command from the master server
+
+- Get comman dto join cluster
+```bash
+kubeadm token create --print-join-command
+```
+- Run the output command in your worker nodes
+```bash
+kubeadm join 172.31.1.17:6443 — token exmkm6.v18t1dkyyu0nte89 — discovery-token-ca-cert-hash sha256:1b135f929b6855ecd6ad9358490a3e9bee8d27582c6babac438d4b6f42a3c717
+```
+- Verify the Kubernetes Cluster Nods
+```bash
+kubectl get nodes -o wide
+```
+***That means our K8's cluster is ready***  
+![image](https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/7ea4bde4-77ea-4c3f-aa42-2b7e1fa209e4)
 
 ## 2. Installing the Kubernetes Dashboard
 
