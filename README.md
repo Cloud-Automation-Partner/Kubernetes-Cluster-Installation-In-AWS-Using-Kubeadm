@@ -14,7 +14,7 @@ This guide provides instructions for setting up a Kubernetes (K8s) cluster on AW
 ### 1.1. Launching EC2 Instances  
 
 We will first create an EC2 instance on which we will build, and configure our cluster (Master Node).  
-Once Master node setup is completed we can make ann AMI of it and worker node's will be created from that.  
+Once Master node setup is completed we can make an AMI of it and worker node's will be created from that.  
 
 - Login to the AWS console
 - Switch to Services -> EC2 -> Launch Instance
@@ -22,14 +22,12 @@ Once Master node setup is completed we can make ann AMI of it and worker node's 
   
 <img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/f6595b9f-113e-4fab-8006-bd6579bd59aa" >
 
-Next,
-
 Select the instance type as shown in the image.  
-Create a key-value pair (You can click Create new key pair or select an existing one.  
+Create a key-value pair (You can click Create new key pair or select an existing one).  
 
 <img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/85488923-299e-4bdd-b9d9-5df8a6d0c575">
 
-Create a new security group as shown below or select any exxisting security group. We need to open all traffic port to make the Kubernetes setup work on an EC2 instance.
+Create a new security group as shown below or select any existing security group. We need to open all traffic port to make the Kubernetes setup work on an EC2 instance.
 
 <img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/a76e36d9-1dd9-4265-9f2d-08c17cfad5d7">
 
@@ -37,7 +35,7 @@ Give 30GB as instance storage, For Master node, we have to give sufecient storag
 
 <img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/27c199cb-0881-4c7a-b584-8905a4a7098f">
 
-Click launch innstance and wait for the instance creation and then SSH into the instance.  
+Click launch instance and wait for the instance creation and then SSH into the instance.  
 
 ### 1.2. Installing Kubernetes required Packages
 
@@ -447,7 +445,7 @@ spec:
       targetPort: 5432
 
 ```
-- 2. ConfigMap and Secret
+- ConfigMap and Secret
 ```bash
 apiVersion: v1
 kind: Secret
