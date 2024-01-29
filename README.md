@@ -20,22 +20,22 @@ Once Master node setup is completed we can make ann AMI of it and worker node's 
 - Switch to Services -> EC2 -> Launch Instance
 - Select the ‘Ubuntu- 20.4’ image and give the Name "k8's-master-node"
   
-![image](https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/f6595b9f-113e-4fab-8006-bd6579bd59aa)  
+<img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/f6595b9f-113e-4fab-8006-bd6579bd59aa" >
 
 Next,
 
 Select the instance type as shown in the image.  
 Create a key-value pair (You can click Create new key pair or select an existing one.  
 
-![image](https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/85488923-299e-4bdd-b9d9-5df8a6d0c575)
+<img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/85488923-299e-4bdd-b9d9-5df8a6d0c575">
 
 Create a new security group as shown below or select any exxisting security group. We need to open all traffic port to make the Kubernetes setup work on an EC2 instance.
 
-![image](https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/a76e36d9-1dd9-4265-9f2d-08c17cfad5d7) 
+<img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/a76e36d9-1dd9-4265-9f2d-08c17cfad5d7">
 
 Give 30GB as instance storage, For Master node, we have to give sufecient storage here.  
 
-![image](https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/27c199cb-0881-4c7a-b584-8905a4a7098f)
+<img width="800" src="https://github.com/Cloud-Automation-Partner/Kubernetes_Cluster_Deploymet_AWS/assets/151637997/27c199cb-0881-4c7a-b584-8905a4a7098f">
 
 Click launch innstance and wait for the instance creation and then SSH into the instance.  
 
